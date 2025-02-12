@@ -1,0 +1,353 @@
+openapi: 3.0.0
+info:
+  title: URL Shortener API
+  description: API documentation for URL shortening service with detailed analytics.
+  version: 1.0.0
+  contact:
+    email: support@urlshortener.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.urlshortener.com
+    description: Production server
+
+components:
+  securitySchemes:
+    GoogleOAuth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: "http://localhost:3000/api/auth/google"  # Fully qualified URL using http
+          scopes:
+            profile: "Read user profile"
+            email: "Read user email"
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+  
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+        profilePicture:
+          type: string
+    
+    URL:
+      type: object
+      properties:
+        _id:
+          type: string
+        originalUrl:
+          type: string
+        shortCode:
+          type: string
+        topic:
+          type: string
+        userId:
+          type: string
+        clicks:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        shortUrl:
+          type: string
+    
+    Analytics:
+      type: object
+      properties:
+        totalClicks:
+          type: number
+        uniqueUsers:
+          type: number
+        byDate:
+          type: array
+          items:
+            type: object
+        byOS:
+          type: array
+          items:
+            type: object
+        byDevice:
+          type: array
+          items:
+            type: object
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+paths:
+  /api/auth/google:
+    get:
+      summary: Initiate Google OAuth2 authentication
+      tags:
+        - Authentication
+      security:
+        - GoogleOAuth: [profile, email]
+      responses:
+        302:
+          description: Redirect to Google login
+  
+  /api/auth/google/callback:
+    get:
+      summary: Google OAuth2 callback
+      tags:
+        - Authentication
+      responses:
+        302:
+          description: Redirect on success
+        401:
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/auth/status:
+    get:
+      summary: Check authentication status
+      tags:
+        - Authentication
+      security:
+        - SessionAuth: []
+      responses:
+        200:
+          description: Authentication status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isAuthenticated:
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/User'
+        401:
+          description: Not authenticated
+  
+  /api/auth/logout:
+    get:
+      summary: Logout user
+      tags:
+        - Authentication
+      security:
+        - SessionAuth: []
+      responses:
+        200:
+          description: Logged out successfully
+  
+  /api/url/shorten:
+    post:
+      summary: Create short URL (with optional custom alias and topic)
+      tags:
+        - URL
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - longUrl
+              properties:
+                longUrl:
+                  type: string
+                  format: uri
+                customAlias:
+                  type: string
+                  minLength: 4
+                  maxLength: 15
+                topic:
+                  type: string
+      responses:
+        201:
+          description: URL shortened successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/URL'
+                  - type: object
+                    properties:
+                      shortUrl:
+                        type: string
+        400:
+          description: Invalid input
+        409:
+          description: Custom alias already exists
+        429:
+          description: Rate limit exceeded
+  
+  /api/url/my-urls:
+    get:
+      summary: Get authenticated user's URLs
+      tags:
+        - URL
+      security:
+        - SessionAuth: []
+      responses:
+        200:
+          description: List of user's URLs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/URL'
+  
+  /api/url/by-topic/{topic}:
+    get:
+      summary: Get URLs by topic for the authenticated user
+      tags:
+        - URL
+      security:
+        - SessionAuth: []
+      parameters:
+        - name: topic
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: URLs for the specified topic
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/URL'
+  
+  /api/shorten/{alias}:
+    get:
+      summary: Redirect to original URL and track analytics
+      tags:
+        - Redirect
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        302:
+          description: Redirects to the original URL
+        404:
+          description: URL not found or inactive
+  
+  /api/analytics/url/{urlId}:
+    get:
+      summary: Get analytics for a specific URL by URL ID
+      tags:
+        - Analytics
+      security:
+        - SessionAuth: []
+      parameters:
+        - name: urlId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: URL analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+  
+  /api/analytics/topic/{topic}:
+    get:
+      summary: Get analytics by topic
+      tags:
+        - Analytics
+      security:
+        - SessionAuth: []
+      parameters:
+        - name: topic
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Topic analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalUrls:
+                    type: number
+                  totalClicks:
+                    type: number
+                  urls:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/URL'
+  
+  /api/analytics/overall:
+    get:
+      summary: Get overall system analytics
+      tags:
+        - Analytics
+      security:
+        - SessionAuth: []
+      responses:
+        200:
+          description: Overall analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  urls:
+                    type: object
+                  analytics:
+                    $ref: '#/components/schemas/Analytics'
+  
+  /api/analytics/{shortCode}:
+    get:
+      summary: Get detailed analytics for a URL (by short code)
+      tags:
+        - Analytics
+      parameters:
+        - name: shortCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Detailed analytics including breakdowns by date, OS, and device.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+        404:
+          description: URL not found
+
+tags:
+  - name: Authentication
+    description: Authentication endpoints.
+  - name: URL
+    description: URL shortening operations.
+  - name: Analytics
+    description: Analytics and statistical data.
+  - name: Redirect
+    description: URL redirection.
