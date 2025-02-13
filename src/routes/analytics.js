@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated } = require('../middleware/auth'); // Update import
-const rateLimiter = require('../middleware/rateLimiter'); // Update import
+const { isAuthenticated } = require('../middleware/auth'); 
+const rateLimiter = require('../middleware/rateLimiter');
 const Analytics = require('../models/analyticsModel');
 const ShortUrl = require('../models/urlModel');
 const { validateObjectId } = require('../utils/validation');
@@ -19,7 +19,7 @@ router.get('/url/:urlId', isAuthenticated, rateLimiter, async (req, res) => {
             return res.status(400).json({ error: 'Invalid URL ID format' });
         }
 
-        // Try to get from cache first
+        // get from cache first
         const cachedData = await cacheService.get(`analytics:url:${urlId}`);
         if (cachedData) {
             return res.json(JSON.parse(cachedData));
@@ -35,7 +35,7 @@ router.get('/url/:urlId', isAuthenticated, rateLimiter, async (req, res) => {
                     countryStats: 1,
                     dailyStats: 1,
                     redirects: {
-                        $slice: ['$redirects', -50] // Get last 50 redirects
+                        $slice: ['$redirects', -50]
                     }
                 }
             },
@@ -52,7 +52,6 @@ router.get('/url/:urlId', isAuthenticated, rateLimiter, async (req, res) => {
 
         const result = urlAnalytics[0] || { totalClicks: 0, uniqueVisitors: 0, browserStats: [], locationStats: [], timeSeriesData: [] };
         
-        // Cache the results
         await cacheService.set(`analytics:url:${urlId}`, JSON.stringify(result), 300);
         
         res.json(result);
@@ -66,7 +65,6 @@ router.get('/url/:urlId', isAuthenticated, rateLimiter, async (req, res) => {
 router.get('/topic/:topic', isAuthenticated, rateLimiter, async (req, res) => {
   try {
     const { topic } = req.params;
-    // Retrieve URL IDs for the given topic
     const urls = await ShortUrl.find({ topic }, { _id: 1 });
     const ids = urls.map(u => u._id);
     if (ids.length === 0) {
@@ -153,7 +151,7 @@ router.get('/overall', isAuthenticated, rateLimiter, async (req, res) => {
 router.get('/:shortCode', async (req, res) => {
   try {
     const { shortCode } = req.params;
-    // Find corresponding URL document
+
     const urlRecord = await URL.findOne({ shortCode });
     if (!urlRecord) {
       return res.status(404).json({ error: 'URL not found' });

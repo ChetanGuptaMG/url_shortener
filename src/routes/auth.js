@@ -3,7 +3,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const router = express.Router();
 const User = require('../models/userModel');
-const { validateSession } = require('../middleware/auth'); // Update import
+const { validateSession } = require('../middleware/auth');
 const config = require('../config/index');
 const bcrypt = require('bcrypt');
 
@@ -15,7 +15,6 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
     try {
-        // Check if user exists
         let user = await User.findOne({ googleId: profile.id });
         
         if (!user) {
@@ -57,7 +56,7 @@ passport.deserializeUser(async (id, done) => {
 
 // Local user registration
 router.post('/register', async (req, res, next) => {
-    // ...validate input fields...
+
     try {
         const { email, password, displayName } = req.body;
         if (!email || !password || !displayName) {
@@ -75,7 +74,7 @@ router.post('/register', async (req, res, next) => {
     }
 });
 
-// Local user login (if needed)
+// Local user login
 router.post('/login', async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -150,7 +149,7 @@ router.get('/logout', (req, res) => {
             return res.status(500).json({ error: 'Error during logout' });
         }
         req.session.destroy(() => {
-            // Pass same cookie options if needed (e.g., path, domain)
+
             res.clearCookie('connect.sid', { path: '/' });
             res.json({ message: 'Logged out successfully' });
         });

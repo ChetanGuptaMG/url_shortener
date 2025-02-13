@@ -5,7 +5,6 @@ const mongoURI = process.env.MONGO_URI || 'mongodb+srv://new8779:asdffdsa@cluste
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-  // ...other options if needed...
 });
 
 mongoose.connection.on('connected', () => {

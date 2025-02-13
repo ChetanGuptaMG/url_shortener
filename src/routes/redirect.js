@@ -19,12 +19,11 @@ router.get('/api/shorten/:alias', async (req, res) => {
         let url = await cacheService.get(cacheKey);
 
         if (!url) {
-            // If not in cache, get from database
             url = await URL.findOne({ shortCode: alias, isActive: true });
             
             if (url) {
                 // Cache the URL for future requests
-                await cacheService.set(cacheKey, url, 3600); // Cache for 1 hour
+                await cacheService.set(cacheKey, url, 3600); 
             }
         }
 

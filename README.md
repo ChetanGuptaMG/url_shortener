@@ -203,5 +203,4 @@ For support, please open an issue in the GitHub repository or contact the mainta
 
 ## Acknowledgments
 
-- Thanks to all contributors
 - Built with ❤️ using Node.js and Express

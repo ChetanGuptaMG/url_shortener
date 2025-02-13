@@ -9,7 +9,6 @@ const logger = require('../utils/logger');
 const { nanoid } = require('nanoid');
 require('dotenv').config();
 
-// Validation middleware for URL shortening requests
 const validateUrlRequest = (req, res, next) => {
   const { longUrl, customAlias, topic } = req.body;
   
@@ -69,7 +68,7 @@ router.post('/shorten', isAuthenticated, rateLimiter, validateUrlRequest, async 
       shortId = await generateUniqueShortUrl();
     }
     
-    // Updated property names to match the model
+
     const url = new URL({
       originalUrl: longUrl,
       shortCode: shortId,
@@ -129,7 +128,7 @@ router.get('/by-topic/:topic', isAuthenticated, async (req, res) => {
           topic: req.params.topic 
         }).sort({ createdAt: -1 }).lean();
       },
-      300 // Cache for 5 minutes
+      300 
     );
     res.json(urls);
   } catch (error) {

@@ -14,9 +14,9 @@ const swaggerDocument = YAML.load('./src/docs/swagger.yaml');
 
 require('dotenv').config();
 require('./config/db');
-require('./config/passport'); // Ensure Passport config is loaded
+require('./config/passport');
 
-// Initialize express app
+
 const app = express();
 const port = process.env.PORT || 3000;
 // Logging middleware
@@ -94,7 +94,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/url', require('./routes/url'));
 app.use('/api/analytics', require('./routes/analytics'));
-app.use('/', require('./routes/redirect')); // Redirect route should be at root level
+app.use('/', require('./routes/redirect')); 
 
 // 404 handler
 app.use((req, res) => {

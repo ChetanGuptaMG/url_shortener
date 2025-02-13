@@ -16,8 +16,8 @@ const isAuthenticated = (req, res, next) => {
     });
 };
 
-// Export both named and default exports
+
 module.exports = {
     isAuthenticated,
-    validateSession: isAuthenticated // Alias for backward compatibility
+    validateSession: isAuthenticated 
 };

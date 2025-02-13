@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() { return !this.googleId; } // required if not using Google Sign-In
+    required: function() { return !this.googleId; }
   },
   googleId: {
     type: String,
