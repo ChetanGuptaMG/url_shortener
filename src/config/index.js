@@ -3,7 +3,7 @@ module.exports = {
     google: {
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:3000/api/auth/google/callback"
+        callbackURL: "https://urlshortner-953263458109.asia-south1.run.app/api/auth/google/callback"
     },
     redis: {
         url: process.env.REDIS_URL, 

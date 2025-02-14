@@ -7,7 +7,7 @@ info:
     email: support@urlshortener.com
 
 servers:
-  - url: http://localhost:3000
+  - url: https://urlshortner-953263458109.asia-south1.run.app
     description: Development server
   - url: https://api.urlshortener.com
     description: Production server
@@ -18,7 +18,7 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: "http://localhost:3000/api/auth/google"  # Fully qualified URL using http
+          authorizationUrl: "https://urlshortner-953263458109.asia-south1.run.app/api/auth/google"  # Fully qualified URL using http
           scopes:
             profile: "Read user profile"
             email: "Read user email"

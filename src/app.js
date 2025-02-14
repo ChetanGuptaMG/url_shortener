@@ -30,7 +30,7 @@ app.use(morgan('combined', {
 app.use(helmet());
 
 // CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['https://urlshortner-953263458109.asia-south1.run.app'];
 const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests without an origin (like curl or Postman)

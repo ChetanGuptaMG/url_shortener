@@ -12,8 +12,6 @@ COPY . .
 
 EXPOSE 3000
 
-# Set environment variables
-ENV NODE_ENV=production
 
 # Run the application
-CMD ["node", "src/server.js"]
+CMD ["node", "src/app.js"]

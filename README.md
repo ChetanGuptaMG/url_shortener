@@ -82,7 +82,7 @@ A robust URL shortening service with comprehensive analytics, built with Node.js
 
 Once the server is running, access the API documentation at:
 ```
-http://localhost:3000/docs
+https://urlshortner-953263458109.asia-south1.run.app/docs
 ```
 
 ### API Endpoints Summary
